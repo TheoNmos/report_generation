@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Interagir com /helper/smart_query</title>
+    <style>
+      /* Reset básico */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        line-height: 1.4;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+      }
+
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      label {
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      input[type="text"] {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      button {
+        width: 120px;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background: #3498db;
+        color: #fff;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.3s;
+        align-self: flex-start;
+      }
+
+      button:hover {
+        background: #2980b9;
+      }
+
+      hr {
+        margin: 20px 0;
+        border: none;
+        border-top: 1px solid #ddd;
+      }
+
+      #response {
+        margin-top: 20px;
+      }
+
+      #response p {
+        margin-bottom: 10px;
+      }
+
+      #response p strong {
+        color: #2c3e50;
+      }
+
+      #response p.error {
+        color: red;
+        font-weight: bold;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      table,
+      th,
+      td {
+        border: 1px solid #ccc;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+      }
+
+      th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Interagir com a Rota /helper/smart_query</h1>
+      <form id="queryForm">
+        <label for="prompt">Digite sua solicitação:</label>
+        <input
+          type="text"
+          id="prompt"
+          name="prompt"
+          placeholder="Ex: Listar produtos mais vendidos"
+        />
+        <button type="submit">Enviar</button>
+      </form>
+
+      <hr />
+
+      <div id="response"></div>
+    </div>
+
+    <script>
+      const form = document.getElementById("queryForm");
+      const responseDiv = document.getElementById("response");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const promptValue = document.getElementById("prompt").value.trim();
+        // Limpa o conteúdo anterior e mostra uma mensagem de carregamento
+        responseDiv.innerHTML = "<p>Carregando...</p>";
+
+        try {
+          const response = await fetch(
+            "http://localhost:8000/helper/smart_query",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ prompt: promptValue }),
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Erro ao chamar a API");
+          }
+
+          const data = await response.json();
+
+          // Inicia o HTML de resposta
+          let html = "";
+
+          // Verifica se há um erro retornado pela API
+          if (data.error) {
+            html += `<p class="error">Erro: ${data.error}</p>`;
+          } else {
+            const { query, confidence, result, insights } = data;
+
+            // Exibe query, confidence e insights
+            html += `<p><strong>Query:</strong> ${query}</p>`;
+            html += `<p><strong>Confiança:</strong> ${confidence}</p>`;
+            html += `<p><strong>Insights:</strong> ${insights}</p>`;
+
+            // Verifica se "result" é uma lista de objetos com conteúdo
+            if (result && Array.isArray(result) && result.length > 0) {
+              // Extrair as chaves do primeiro objeto para criar o cabeçalho da tabela
+              const keys = Object.keys(result[0]);
+
+              html += "<table>";
+              // Cabeçalho
+              html += "<tr>";
+              keys.forEach((key) => {
+                html += `<th>${key}</th>`;
+              });
+              html += "</tr>";
+
+              // Linhas
+              result.forEach((item) => {
+                html += "<tr>";
+                keys.forEach((key) => {
+                  html += `<td>${item[key]}</td>`;
+                });
+                html += "</tr>";
+              });
+
+              html += "</table>";
+            } else {
+              html += "<p>Nenhum resultado retornado.</p>";
+            }
+          }
+
+          responseDiv.innerHTML = html;
+        } catch (error) {
+          console.error(error);
+          responseDiv.innerHTML = `<p class="error">Ocorreu um erro ao processar sua solicitação.</p>`;
+        }
+      });
+    </script>
+  </body>
+</html>
