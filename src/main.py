@@ -7,8 +7,8 @@ from sqlalchemy import select
 from ai_helper.router import router as ai_helper_router
 from config import settings
 from db import sessionmanager
-from relatories.router import router as relatories_router
 from healthcheck.router import router as healthcheck_router
+from relatories.router import router as relatories_router
 
 DATABASE_URL: str = settings.DATABASE_URL
 API_KEY: str = settings.API_KEY
@@ -43,12 +43,11 @@ async def api_key_auth(x_api_key: str = Header(...)):
 app = FastAPI(
     title="Report generation for all clients",
     lifespan=lifespan,
-    dependencies=[Depends(api_key_auth)],
 )
 
 app.include_router(healthcheck_router)
-app.include_router(relatories_router)
-app.include_router(ai_helper_router)
+app.include_router(relatories_router, dependencies=[Depends(api_key_auth)])
+app.include_router(ai_helper_router, dependencies=[Depends(api_key_auth)])
 
 app.add_middleware(
     CORSMiddleware,
