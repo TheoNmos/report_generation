@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <title>Interagir com /helper/smart_query</title>
     <style>
-      /* Reset básico */
       * {
         margin: 0;
         padding: 0;
@@ -120,6 +119,14 @@
     <div class="container">
       <h1>Interagir com a Rota /helper/smart_query</h1>
       <form id="queryForm">
+        <label for="apiKey">API Key:</label>
+        <input
+          type="text"
+          id="apiKey"
+          name="apiKey"
+          placeholder="Cole sua API Key aqui"
+        />
+
         <label for="prompt">Digite sua solicitação:</label>
         <input
           type="text"
@@ -143,7 +150,7 @@
         e.preventDefault();
 
         const promptValue = document.getElementById("prompt").value.trim();
-        // Limpa o conteúdo anterior e mostra uma mensagem de carregamento
+        const apiKey = document.getElementById("apiKey").value.trim();
         responseDiv.innerHTML = "<p>Carregando...</p>";
 
         try {
@@ -153,6 +160,7 @@
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
+                "X-API-Key": apiKey, // Send API key in header
               },
               body: JSON.stringify({ prompt: promptValue }),
             }
@@ -164,27 +172,22 @@
 
           const data = await response.json();
 
-          // Inicia o HTML de resposta
           let html = "";
 
-          // Verifica se há um erro retornado pela API
           if (data.error) {
             html += `<p class="error">Erro: ${data.error}</p>`;
           } else {
             const { query, confidence, result, insights } = data;
 
-            // Exibe query, confidence e insights
             html += `<p><strong>Query:</strong> ${query}</p>`;
             html += `<p><strong>Confiança:</strong> ${confidence}</p>`;
             html += `<p><strong>Insights:</strong> ${insights}</p>`;
 
-            // Verifica se "result" é uma lista de objetos com conteúdo
             if (result && Array.isArray(result) && result.length > 0) {
-              // Extrair as chaves do primeiro objeto para criar o cabeçalho da tabela
+              // getting the key from the first object to make the table column names
               const keys = Object.keys(result[0]);
 
               html += "<table>";
-              // Cabeçalho
               html += "<tr>";
               keys.forEach((key) => {
                 html += `<th>${key}</th>`;
