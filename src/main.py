@@ -40,7 +40,7 @@ async def api_key_auth(x_api_key: str = Header(...)):
 
 # FastAPI instance
 app = FastAPI(
-    title="Relatory generation for all clients",
+    title="Report generation for all clients",
     lifespan=lifespan,
     dependencies=[Depends(api_key_auth)],
 )
