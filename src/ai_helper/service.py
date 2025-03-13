@@ -1,4 +1,5 @@
 from openai import AsyncOpenAI
+from schemas import GeneratedQuery
 from sqlalchemy import TextClause, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -60,7 +61,7 @@ async def generate_query(prompt: str) -> str | None:
             "role": "system",
             "content": """
          You are a proficient SQL user and need to create a query for the user.  
-Your goal is to generate a query that will return what the user asked for, using the best SQL practices.  
+Your goal is to generate a query that will return what the user asked for or the data that the user needs to answer their question, using the best SQL practices.  
 You are operating in a PostgreSQL database.  
 
 ### Guidelines:
@@ -110,7 +111,7 @@ The database has the following tables and their relationships:
 - An embed configuration (`embed_configs`) is linked to a workspace (`workspaces`) by `workspace_id`.  
 
 ### Output Format:
-Respond in the following JSON format on a single line:  
+Respond in the following format:  
 { 
    "query": "The query you created, written in one line with no formatting.",
    "confidence": Your confidence level in the query as a float between 0 and 1.
@@ -126,9 +127,10 @@ If you lack sufficient information to generate the query, return:
         {"role": "user", "content": prompt},
     ]
 
-    response = await client.chat.completions.create(
+    response = await client.beta.chat.completions.parse(
         model="gpt-4o-mini",
         messages=messages,  # type: ignore
+        response_format=GeneratedQuery,
     )
 
     return response.choices[0].message.content
