@@ -8,6 +8,7 @@ from ai_helper.router import router as ai_helper_router
 from config import settings
 from db import sessionmanager
 from relatories.router import router as relatories_router
+from healthcheck.router import router as healthcheck_router
 
 DATABASE_URL: str = settings.DATABASE_URL
 API_KEY: str = settings.API_KEY
@@ -45,7 +46,7 @@ app = FastAPI(
     dependencies=[Depends(api_key_auth)],
 )
 
-
+app.include_router(healthcheck_router)
 app.include_router(relatories_router)
 app.include_router(ai_helper_router)
 

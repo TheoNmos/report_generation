@@ -1,3 +1,4 @@
+httpx==0.28.1
 annotated-types==0.7.0
 anyio==4.4.0
 fastapi==0.112.2
@@ -9,7 +10,7 @@ starlette==0.38.2
 typing_extensions==4.12.2
 pydantic-settings==2.4.0
 uvicorn==0.30.5
-openai==1.40.2
-sqlalchemy
-asyncpg
-python-dotenv
+openai==1.66.3
+sqlalchemy==2.0.39
+asyncpg==0.30.0
+python-dotenv==1.0.1
