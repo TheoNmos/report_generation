@@ -1,6 +1,6 @@
 # report generation and AI helper
 
-#### This is basically an implementation of a friendly way to query a database, which contains the data retrieved from am AI chatbot.
+#### This is an implementation of a friendly way to query a database, which contains the data retrieved from am AI chatbot.
 
 I used **FastAPI** for this implementation because of its async nature.
 
