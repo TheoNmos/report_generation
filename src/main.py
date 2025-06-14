@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 
 from ai_helper.router import router as ai_helper_router
@@ -45,6 +47,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+@app.get("/", response_class=HTMLResponse)
+async def get_index():
+    """Return the HTML template for the frontend interface"""
+    html_file = Path("../frontend/index.html")
+    return html_file.read_text(encoding="utf-8")
+
+
 app.include_router(healthcheck_router)
 app.include_router(relatories_router, dependencies=[Depends(api_key_auth)])
 app.include_router(ai_helper_router, dependencies=[Depends(api_key_auth)])
@@ -58,7 +68,7 @@ app.add_middleware(
 )
 
 
-# if __name__ == "__main__":
-#     import uvicorn
+if __name__ == "__main__":
+    import uvicorn
 
-#     uvicorn.run("main:app", host="localhost", reload=True)
+    uvicorn.run("main:app", host="localhost", reload=True)

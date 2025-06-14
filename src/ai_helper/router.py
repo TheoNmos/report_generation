@@ -1,7 +1,6 @@
 import json
 
-from fastapi import APIRouter, Body, Depends
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_helper.schemas import QueryPrompt
@@ -12,12 +11,14 @@ router = APIRouter(tags=["AI query generator"], prefix="/helper")
 
 
 @router.post("/smart_query")
-async def get_insights_with_ai(prompt: QueryPrompt, db: AsyncSession = Depends(get_db)):
+async def get_insights_with_ai(
+    prompt: QueryPrompt, db: AsyncSession = Depends(get_db)
+):
     """
     Say what you want and get the data without needing to chose the filters
     """
     try:
-        response = await generate_query(prompt.prompt)
+        response = await generate_query(prompt.prompt, prompt.workspace)
         response_json = json.loads(str(response))
         if response_json["query"] == "Not enough information":
             return {"error": "Not enough information to generate the query"}
@@ -33,12 +34,12 @@ async def get_insights_with_ai(prompt: QueryPrompt, db: AsyncSession = Depends(g
 
     try:
         if result:
-            ai_insight: str = await analise_results(result, prompt.prompt)
+            ai_insight: str = await analise_results(result[:300], prompt.prompt)
             return {
                 "query": response_json["query"],
+                "insights": ai_insight,
                 "confidence": response_json["confidence"],
                 "result": result,
-                "insights": ai_insight,
             }
         return {
             "query": response_json["query"],

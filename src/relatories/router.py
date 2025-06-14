@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db import get_db
 from relatories.schemas import Chat, ExportRequest, Workspace
-from relatories.service import get_workspace_chats, get_workspace_leads, get_workspaces
+from relatories.service import get_workspace_chats, get_workspaces
 
 router = APIRouter(tags=["relatories generation"], prefix="/relatories")
 
@@ -39,7 +39,9 @@ async def export_workspace_chats(
         )
     except Exception as e:
         print(f"Error while performing query : {e}")
-        return StreamingResponse(StringIO("Error while performing query"), media_type="text/plain")
+        return StreamingResponse(
+            StringIO("Error while performing query"), media_type="text/plain"
+        )
 
     # create the csv with the content returned by service
     if chats:
@@ -78,7 +80,10 @@ async def export_workspace_chats(
         )
         return response
     else:
-        return StreamingResponse(StringIO("No chats found for the given period and workspace"), media_type="text/plain")
+        return StreamingResponse(
+            StringIO("No chats found for the given period and workspace"),
+            media_type="text/plain",
+        )
 
 
 @router.get("/chats")
@@ -110,7 +115,9 @@ async def get_chats_json(
 
 
 @router.get("/workspaces")
-async def get_workspaces_names(db: AsyncSession = Depends(get_db)) -> list[Workspace]:
+async def get_workspaces_names(
+    db: AsyncSession = Depends(get_db),
+) -> list[Workspace]:
     """
     Get all workspaces names
     """
@@ -120,7 +127,9 @@ async def get_workspaces_names(db: AsyncSession = Depends(get_db)) -> list[Works
     except Exception as e:
         print(f"Error while performing query : {e}")
     if workspaces_data:
-        workspaces: list[Workspace] = [Workspace(**workspace) for workspace in workspaces_data]
+        workspaces: list[Workspace] = [
+            Workspace(**workspace) for workspace in workspaces_data
+        ]
         return workspaces
     else:
         return []
