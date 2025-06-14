@@ -1,7 +1,6 @@
 import json
 
-from fastapi import APIRouter, Body, Depends
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ai_helper.schemas import QueryPrompt
@@ -19,7 +18,7 @@ async def get_insights_with_ai(
     Say what you want and get the data without needing to chose the filters
     """
     try:
-        response = await generate_query(prompt.prompt)
+        response = await generate_query(prompt.prompt, prompt.workspace)
         response_json = json.loads(str(response))
         if response_json["query"] == "Not enough information":
             return {"error": "Not enough information to generate the query"}
