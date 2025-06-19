@@ -21,3 +21,9 @@ After getting the data, some insights are generated based on the results and use
 There is also a really simple frontend to interact with the AI workflow, but that's not the focus of the app.
 
 The users will be interacting directly with the FastAPI swagger, which i believe it very usefull in scenarios like this, when you're only going to use the tool internally and don't have many routes.
+
+---
+
+The following print screen is from the page where the users can interact with the SQL agent:
+
+![report_generation](https://github.com/user-attachments/assets/242fd10a-5a3e-4843-b433-35b87cabf46e)
